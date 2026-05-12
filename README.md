@@ -1,27 +1,42 @@
-# EssentialsPractice
+# ng-investment-calculator
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 18.0.0-next.2.
+An investment calculator built with Angular 18 as a practice project while following Maximilian Schwarzmuller's [The Complete Guide to Angular](https://www.udemy.com/course/the-complete-guide-to-angular-2/) on Udemy.
 
-## Development server
+## What I learned building this
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
+### Standalone components
 
-## Code scaffolding
+Unlike the previous task manager project which used NgModules, this app uses standalone components throughout. Each component declares its own `imports` array directly in the `@Component` decorator.
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+### Signals for state
 
-## Build
+Signals are Angular's reactive primitive: the same concept as `ref()` in Vue, `createSignal()` in Solid, or `useState()` in React. When a signal's value changes, anything that reads it updates automatically. The syntax is slightly different: reading requires calling it as a function (`this.initialInvestment()`), and writing uses `.set()`. Form field values and the computed results are both signals here, so the results table re-renders whenever the service updates them without any manual change detection.
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
+### Service with signal-based shared state
 
-## Running unit tests
+`InvestmentService` holds a `results` signal and exposes a `calculate()` method. `UserInputComponent` calls `calculate()` on form submit; `InvestmentResultsComponent` reads `results()` via the same service instance. This is the same singleton pattern as before, but now the shared state is a signal instead of a plain array, so the UI updates without any manual change detection.
 
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
+### The currency pipe
 
-## Running end-to-end tests
+`{{ row.valueEndOfYear | currency }}` formats a raw number as a localized currency string. Pipes are applied in the template with `|` and must be imported into the component's `imports` array (`CurrencyPipe` from `@angular/common`).
 
-Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
+### @if with an else branch
 
-## Further help
+```html
+@if (!results) {
+  <p>Please enter some values...</p>
+} @else {
+  <table>...</table>
+}
+```
 
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.
+The new control flow syntax supports `@else` directly, which is cleaner than the old `*ngIf / ng-template` pattern.
+
+## Stack
+
+- Angular 18 (standalone components)
+- TypeScript
+- Angular Signals
+- Angular Forms (template-driven)
+- CurrencyPipe
+- Bun
